@@ -10,24 +10,48 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(readxl)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(tidyr)
+library(flexdashboard)
+
+data<-read.csv("C:/Users/norab/repos/sewanee_soccer/data/app_data.csv")
+
+data<-data%>%
+  rename(Timestamp=X2026.04.19.11.04.21)
+
+data<-data%>%
+  rename(Type=fwrd_pass,
+         Status=complete,
+         third=attacking.third)
+View(data)
+pass_third_data<-data%>%
+  filter(Type %in% c("fwrd_pass","bck_pass"))%>%
+  group_by(third, Type)%>%
+  summarise(count=n(), .groups="drop")
+
+pass_third_data$third<- factor(pass_third_data$third, levels=c('attacking third','middle third','defensive third'))
+pass_third_data$Type<- factor(pass_third_data$Type, levels=c('fwrd_pass','bck_pass'))
+
+ggplot(pass_third_data, aes(
+  x=third,
+  y=count,
+  fill=Type))+
+  geom_col(stat="identity",position="dodge")+
+  labs(
+    title="Tactical Approach in Each Third",
+    subtitle="Number of Passes in Each Third",
+    x="Third of the Field",
+    y="Number of Passes",
+    fill="Type of Pass"
+  )+
+  scale_fill_manual(
+    values=c("fwrd_pass"='red',"bck_pass"='blue') #change, too harsh
+  ) #theme; gg_themes???
+
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
