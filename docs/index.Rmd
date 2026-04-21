@@ -18,16 +18,16 @@ library(ggplot2)
 library(tidyr)
 library(flexdashboard)
 
-data<-read.csv("C:/Users/norab/repos/sewanee_soccer/data/app_data.csv")
-
+data<-read_excel("C:/Users/norab/repos/sewanee_soccer/data/app_data.xlsx")
+View(data)
 data<-data%>%
-  rename(Timestamp=X2026.04.19.11.04.21)
+  rename(Timestamp=`46131.461354166669`)
 
 data<-data%>%
   rename(Type=fwrd_pass,
          Status=complete,
-         third=attacking.third)
-View(data)
+         third='attacking third')
+
 pass_third_data<-data%>%
   filter(Type %in% c("fwrd_pass","bck_pass"))%>%
   group_by(third, Type)%>%
@@ -35,7 +35,12 @@ pass_third_data<-data%>%
 
 pass_third_data$third<- factor(pass_third_data$third, levels=c('attacking third','middle third','defensive third'))
 pass_third_data$Type<- factor(pass_third_data$Type, levels=c('fwrd_pass','bck_pass'))
+```
 
+# Attack
+## Top Left
+```{r, echo=FALSE}
+# put in different r chunk
 ggplot(pass_third_data, aes(
   x=third,
   y=count,
@@ -49,9 +54,82 @@ ggplot(pass_third_data, aes(
     fill="Type of Pass"
   )+
   scale_fill_manual(
-    values=c("fwrd_pass"='red',"bck_pass"='blue') #change, too harsh
+    values=c("fwrd_pass"='red',"bck_pass"='black') #change, too harsh
   ) #theme; gg_themes???
 
 ```
 
+## Top Right
+```{r, echo=FALSE}
+pass_dribble_data<-data%>%
+  filter(Type %in% c("fwrd_pass","bck_pass","dribble"))%>%
+  mutate(Status = gsub('successful','complete', Status))
+pass_dribble_data<-pass_dribble_data%>%
+  mutate(Status = gsub('uncomplete','incomplete',Status))
 
+pass_dribble_data<-pass_dribble_data%>%
+  mutate(
+    completion=case_when(
+      Status %in% c("complete") ~ 1,
+      Status %in% c("incomplete") ~ 0),
+    action=case_when(
+      Type %in% c("fwrd_pass", "bck_pass") ~ "pass",
+      Type == "dribble" ~ "dribble"
+    )
+  )
+
+pass_dribble_rate<-pass_dribble_data%>%
+  group_by(third, action)%>%
+  summarise(completion_rate = mean(completion), .groups="drop")
+
+pass_dribble_rate<-pass_dribble_rate%>%
+  mutate(third = factor(third, levels = c("attacking third","middle third","defensive third")))%>%
+  mutate(action = factor(action, levels = c("pass","dribble")))
+
+ggplot(pass_dribble_rate, aes(
+  x=third,
+  y=completion_rate,
+  fill=action
+  ))+
+  geom_col(stat="identity", position=position_dodge(preserve="single"))+
+  labs(
+    title="Success in Each Third",
+    subtitle="Pass and Dribble Competion by Third",
+    caption="There were no dribbles attempted in the defensive third",
+    x="Third of the Field",
+    y="Completion Rate",
+    color="Action"
+  )+
+  scale_fill_manual(
+    values= c("pass"='yellow',"dribble"= 'turquoise')
+  )
+```
+## Bottom
+```{r}
+ground_air_data<-pass_dribble_data%>%
+  filter(Type == 'fwrd_pass')%>%
+  group_by(third, ground)%>%
+  summarise(count = n(), .groups="drop")%>%
+  mutate(third = factor(third, levels = c('attacking third','middle third', 'defensive third')),
+         ground = factor(ground, levels = c('ground','air')))
+
+ggplot(ground_air_data, aes(
+  x=third,
+  y=count,
+  fill=ground
+))+
+  geom_col(stat="identity", position=position_dodge(preserve="single"))+
+  labs(
+    title="Altitude of Attack",
+    subtitle="Pass Attempts on the Ground or in the Air by Third",
+    caption="No Pass Attempts in the Air in the Defensive Third",
+    x="Third of the Field",
+    y="Number of Pass Attempts",
+    color="Type of Pass"
+  )
+
+```
+
+
+
+# Defense
