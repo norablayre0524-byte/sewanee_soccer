@@ -7,6 +7,7 @@ output:
     orientation: columns
 
 ---
+# Introduction
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -19,7 +20,6 @@ library(tidyr)
 library(flexdashboard)
 
 data<-read_excel("C:/Users/norab/repos/sewanee_soccer/data/app_data.xlsx")
-View(data)
 data<-data%>%
   rename(Timestamp=`46131.461354166669`)
 
@@ -133,3 +133,105 @@ ggplot(ground_air_data, aes(
 
 
 # Defense
+## Top Left
+```{r, echo=FALSE}
+defense_data<-read_excel("C:/Users/norab/repos/sewanee_soccer/defense_data/defense_data.xlsx")
+defense_data<-defense_data%>%
+  rename(timestamp=`46134.173657407409`,
+         action=pass_allowed,
+         success=complete,
+         third='attacking third')
+pass_defense<-defense_data%>%
+  group_by(action,success, third)%>%
+  summarise(count = n(), .groups="drop")
+pass_defense_filter<-pass_defense%>%
+  filter(action == 'pass_allowed',
+         success %in% c('complete','incomplete'))
+pass_defense_filter$third<- factor(pass_defense_filter$third, levels = c('attacking third','middle third', 'defensive third'))
+
+ggplot(pass_defense_filter, aes(
+  x=third,
+  y=count,
+  fill=success
+))+
+  geom_col(stat="identity", position="dodge")+
+  scale_fill_manual(
+    values = c(complete='red',incomplete='green')
+  )+
+  labs(
+    title="Tactics Against Passing",
+    subtitle="Number of Passes for the Opposition",
+    x="Third of the Field",
+    y="Number of Passes",
+    fill="Key"
+  )+
+  theme_light()
+```
+
+## Top Right
+```{r, echo=FALSE}
+
+tackle_data<-defense_data%>%
+  filter(action == 'tackle')
+tackle_count_data<-tackle_data%>%
+  group_by(success, third)%>%
+  summarise(count = n(), .groups="drop")%>%
+  mutate(third = factor(third, levels = c('attacking third','middle third','defensive third')),
+         success = factor(success, levels = c('won','not won')))
+
+ggplot(tackle_count_data, aes(
+  x=third,
+  y=count,
+  fill=success
+))+
+  geom_col(stat="identity", position=position_dodge(preserve="single"))+
+  scale_fill_manual(
+    values = c(won='green','not won'='red')
+  )+
+  labs(
+    title="Defensive Success on the Ground",
+    subtitle="Number of Tackles Won by Third",
+    x="Third of the Field",
+    y="Number of Tackles",
+    fill="Key",
+    caption="No Tackles Not Won in the Attacking and Defensive Thirds"
+  )
+
+```
+
+##Bottom Left
+```{r, echo=FALSE}
+
+header_data<-defense_data%>%
+  filter(action == 'header',
+         third != 'attacking third')
+header_data_filter<-header_data%>%
+  mutate(third = factor(third, levels = c('middle third','defensive third')),
+         success = factor(success, levels = c('won','not won')))
+header_count_data<-header_data_filter%>%
+  group_by(success, third)%>%
+  summarise(count = n(), .groups="drop")
+
+ggplot(header_count_data, aes(
+  x=third,
+  y=count,
+  fill=success
+))+
+  geom_col(stat="identity",position="dodge")+
+  scale_fill_manual(
+    values = c(won='green','not won'='red')
+  )+
+  scale_y_continuous(limits = c(0,4))+
+  labs(
+    title="Defensive Success in the Air",
+    subtitle="Number of Headers Won by Third",
+    x="Third of the Field",
+    y="Number of Headers",
+    fill="Key",
+    caption="No Headers in the Attacking Third"
+  )
+```
+
+# Comparison
+
+# Conclusion
