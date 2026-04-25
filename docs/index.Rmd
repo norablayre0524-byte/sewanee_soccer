@@ -9,6 +9,13 @@ output:
 ---
 # Introduction
 
+## Column {width=400}
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; The Men’s soccer team at Sewanee: The University of the South is a team on the rise looking to make an impact in conference play (Southern Athletic Association) and appear in the NCAA DIII tournament, a feat they’ve only accomplished once in program history. The program has an up and down history with only one conference championship in 2001. 
+
+&nbsp;&nbsp;&nbsp;&nbsp; The team is young with 9 freshmen and 7 sophomores with many of these underclassmen starting or logging significant minutes and stats. Six of the top ten goalscorers on the team were underclassmen last season. So, it’s clear that this young team has lots of potential proven by their record from last season. And coach, Toni Pacella, is pulling in more talent with an incoming freshman class of 10 with much promise.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -18,6 +25,9 @@ library(readr)
 library(ggplot2)
 library(tidyr)
 library(flexdashboard)
+library(tinytable)
+library(qwraps2)
+library(knitr)
 
 data<-read_excel("C:/Users/norab/repos/sewanee_soccer/data/app_data.xlsx")
 data<-data%>%
@@ -36,6 +46,35 @@ pass_third_data<-data%>%
 pass_third_data$third<- factor(pass_third_data$third, levels=c('attacking third','middle third','defensive third'))
 pass_third_data$Type<- factor(pass_third_data$Type, levels=c('fwrd_pass','bck_pass'))
 ```
+
+
+
+```{r, echo=FALSE}
+record<- data.frame(
+  Year = c('25-26','24-25','23-24','22-23'),
+  Wins = c('12','6','6','13'),
+  Losses = c('4','7','5','4'),
+  Ties = c('4','4','6','0')
+)
+
+tt(record, caption="Record in Recent Years")
+```
+  
+  
+&nbsp;&nbsp;&nbsp;&nbsp; As the Sewanee Men’s soccer team develops and hopefully reaches new heights over the next few years, analyzing their tactics and playstyle can be helpful to understanding how they plan to capitalize on their talent pool. 
+
+## Column {width=400}
+
+&nbsp;&nbsp;&nbsp;&nbsp; Sewanee recently played a spring game against a solid Dalton State team who won the national championship for NAIA, the community college equivalent to NCAA, in 2024. Looking at the first ten minutes of the game is a great way to determine the probable tactics that Coach Pacella was using. Spring games are often a way for coaches to try out new play styles that they think could be effective for the regular season in the fall; therefore, examining statistics for the first 10 minutes of Sewanee’s game against Dalton State can provide an idea about how they plan to achieve success in the 2026 season.
+
+&nbsp;&nbsp;&nbsp;&nbsp; It’s important to note that if certain tactical approaches were unsuccessful, Coach Pacella would likely change them for the upcoming season. 
+
+![](sewanee_soccer/6566143.jpg)
+
+&nbsp;&nbsp;&nbsp;&nbsp; In soccer, the field is divided into 3 thirds, splitting the field into even pieces by its length. There is an attacking third, middle third, and defensive third for each team. One team’s attacking third is the other team’s defensive third. This part is pretty intuitive. What’s not so intuitive for someone who doesn’t watch soccer is how the different tactics in each third affect the game’s outcome. 
+
+&nbsp;&nbsp;&nbsp;&nbsp; In order to break down Sewanee’s playstyle against Dalton State, a variety of attacking and defensive stats in each third of the field must be studied. These stats will help to shape the tactical identity of the team and how successful they could be in reaching the full potential of their young squad.
+
 
 # Attack
 ## Top Left
@@ -121,11 +160,11 @@ ggplot(ground_air_data, aes(
   geom_col(stat="identity", position=position_dodge(preserve="single"))+
   labs(
     title="Altitude of Attack",
-    subtitle="Pass Attempts on the Ground or in the Air by Third",
+    subtitle="Foward Pass Attempts on the Ground or in the Air by Third",
     caption="No Pass Attempts in the Air in the Defensive Third",
     x="Third of the Field",
     y="Number of Pass Attempts",
-    color="Type of Pass"
+    fill="Type of Pass"
   )
 
 ```
@@ -233,5 +272,28 @@ ggplot(header_count_data, aes(
 ```
 
 # Comparison
+
+## Top Left
+```{r, echo=FALSE}
+foul_data<-defense_data%>%
+  filter(action == 'foul')
+foul_data_filter<-foul_data[c('action','third')]
+foul_data_filter<-foul_data_filter%>%
+  rename(Action = action,
+         'Third of the Field' = third)%>%
+  mutate(Card = c('none','yellow'))
+(table<-tt(foul_data_filter, caption="Fouls Committed by Sewanee"))
+```
+
+## Top Right
+```{r, echo=FALSE}
+compare_table<-data.frame(
+  'Total Pass Attempts' = c('58','34'),
+  'Total Pass Completed' = c('44','26'),
+  'Completion Percentage' = c('75.86', '76.47')
+)
+rownames(compare_table)<-c('Sewanee','Dalton State')
+tt(compare_table, caption="Comparative Passing Data for the Teams")
+```
 
 # Conclusion
