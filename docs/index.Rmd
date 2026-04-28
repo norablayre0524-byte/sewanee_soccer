@@ -307,10 +307,11 @@ ggplot(header_count_data, aes(
 
 # Overview
 
-## Column {width=400}
+## Column {width=500}
 
 &nbsp;&nbsp;&nbsp;&nbsp; The Sewanee men’s soccer team and their coach make intentional tactical choices to drive the success of the team. They definitely have approaches that work, especially on the attacking side; however, a bit of work needs to be done on the defensive side. It would be beneficial if they made their tactics more adaptable, as well. Rigid tactics don’t hold against the constantly changing phases of the game, but a confident team with thorough tactics will know how to adjust to these changes. This is what should be Sewanee‘s main focus during the fall preseason in order to reach their fullest potential. These stats are pulled from 10 minutes of one game. Even though it seems Sewanee was doing better, there was actually little difference between the two teams' pass percentages.
-```{r, echo=FALSE}
+
+```{r, include=FALSE}
 compare_table<-data.frame(
   'Total Pass Attempts' = c('58','34'),
   'Total Pass Completed' = c('44','26'),
