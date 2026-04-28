@@ -61,15 +61,15 @@ tt(record, caption="Record in Recent Years")
 ```
   
   
-&nbsp;&nbsp;&nbsp;&nbsp; As the Sewanee Men’s soccer team develops and hopefully reaches new heights over the next few years, analyzing their tactics and playstyle can be helpful to understanding how they plan to capitalize on their talent pool. 
-
-## Column {width=400}
+&nbsp;&nbsp;&nbsp;&nbsp; As the Sewanee Men’s soccer team develops and hopefully reaches new heights over the next few years, analyzing their tactics and playstyle can be helpful to understanding how they plan to capitalize on their talent pool.
 
 &nbsp;&nbsp;&nbsp;&nbsp; Sewanee recently played a spring game against a solid Dalton State team who won the national championship for NAIA, the community college equivalent to NCAA, in 2024. Looking at the first ten minutes of the game is a great way to determine the probable tactics that Coach Pacella was using. Spring games are often a way for coaches to try out new play styles that they think could be effective for the regular season in the fall; therefore, examining statistics for the first 10 minutes of Sewanee’s game against Dalton State can provide an idea about how they plan to achieve success in the 2026 season.
 
+## Column {width=300}
+
 &nbsp;&nbsp;&nbsp;&nbsp; It’s important to note that if certain tactical approaches were unsuccessful, Coach Pacella would likely change them for the upcoming season. 
 
-![](sewanee_soccer/6566143.jpg)
+![The Thirds of a Soccer Field](6566143.jpg)
 
 &nbsp;&nbsp;&nbsp;&nbsp; In soccer, the field is divided into 3 thirds, splitting the field into even pieces by its length. There is an attacking third, middle third, and defensive third for each team. One team’s attacking third is the other team’s defensive third. This part is pretty intuitive. What’s not so intuitive for someone who doesn’t watch soccer is how the different tactics in each third affect the game’s outcome. 
 
@@ -77,8 +77,12 @@ tt(record, caption="Record in Recent Years")
 
 
 # Attack
-## Top Left
-```{r, echo=FALSE}
+
+## Column {width=450}
+
+&nbsp;&nbsp;&nbsp;&nbsp; Passing and dribbling approach for each third of the field can be key in dissecting the tactics employed by Sewanee Men’s soccer against Dalton State. When looking at the passing stats, we see that the team is not afraid to possess the ball and has high numbers of both forwards and backwards passes in each third. There is a higher ratio of back passes in the defensive third as they want to minimize the risk of a counterattack so close to their own goal. 
+
+```{r, echo=FALSE, fig.dim = c(5,3)}
 # put in different r chunk
 ggplot(pass_third_data, aes(
   x=third,
@@ -86,7 +90,7 @@ ggplot(pass_third_data, aes(
   fill=Type))+
   geom_col(stat="identity",position="dodge")+
   labs(
-    title="Tactical Approach in Each Third",
+    title="The Passing Blueprint",
     subtitle="Number of Passes in Each Third",
     x="Third of the Field",
     y="Number of Passes",
@@ -98,8 +102,17 @@ ggplot(pass_third_data, aes(
 
 ```
 
-## Top Right
-```{r, echo=FALSE}
+&nbsp;&nbsp;&nbsp;&nbsp; As they advance the ball up the field, they start to increase their number of forward passes, taking intentional risks to help with the end product: goals. It’s clear that they are not sitting back and waiting for the other team to make a mistake. Instead of relying on the counter attack, they prefer to control the ball and build calculated attacks. This is further reinforced by their consistent pass completion rate across every third of the field. The consistent number of passes in each third also illustrates that the team is trying to move the ball in between thirds, which forces the Dalton State defenders to move more and potentially open up gaps for Sewanee to exploit. 
+
+&nbsp;&nbsp;&nbsp;&nbsp;Additionally, we see that Sewanee is not afraid to take on defenders in 1v1 situations to create attack. They have a high number of dribble attempts and a high dribble completion rate in the attacking third. They prefer not to do this as much in the middle and defensive thirds because again they like to maintain possession of the ball. 
+
+![Sewanee's Formation](formation.webp)
+
+## Column {width=25}
+
+## Column {width=450}
+
+```{r, echo=FALSE, fig.dim = c(5,3)}
 pass_dribble_data<-data%>%
   filter(Type %in% c("fwrd_pass","bck_pass","dribble"))%>%
   mutate(Status = gsub('successful','complete', Status))
@@ -132,7 +145,7 @@ ggplot(pass_dribble_rate, aes(
   ))+
   geom_col(stat="identity", position=position_dodge(preserve="single"))+
   labs(
-    title="Success in Each Third",
+    title="Angle of Attack",
     subtitle="Pass and Dribble Competion by Third",
     caption="There were no dribbles attempted in the defensive third",
     x="Third of the Field",
@@ -143,8 +156,12 @@ ggplot(pass_dribble_rate, aes(
     values= c("pass"='yellow',"dribble"= 'turquoise')
   )
 ```
-## Bottom
-```{r}
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;When you are on the ball, the opponent is not, meaning there is less threat for them scoring and more opportunities for you to attack. We see many top professional teams use similar tactics like Manchester City, Barcelona, and PSG. All of these teams have won a league title in their respective leagues in the past two years and are generally considered among the top teams in the world. 
+
+
+```{r, echo=FALSE, fig.dim = c(5,3)}
 ground_air_data<-pass_dribble_data%>%
   filter(Type == 'fwrd_pass')%>%
   group_by(third, ground)%>%
@@ -169,11 +186,21 @@ ggplot(ground_air_data, aes(
 
 ```
 
+&nbsp;&nbsp;&nbsp;&nbsp;However, the high possession of these teams is not fruitful if no risks are taken. And the same goes for Sewanee. When we consider Sewanee’s forward pass attempts, they increase the number of balls in the air when in or playing into the attacking third. This is one way they take risks in hope to score goals. So, it’s likely that they like to have quick ball movement on the ground to get defenders out of position and then play a dangerous ball in the air into the attacking third. Playing the ball in the air allows for more direct build up in which attackers can then get on the ball and take on their defenders; it’s an aggressive pass. 
+
+&nbsp;&nbsp;&nbsp;&nbsp;Further, Sewanee minimizes the threat of counterattacks by not playing many balls in the air in their defensive and middle thirds. Sewanee’s pass distribution is skewed toward the attacking and middle thirds, illustrating that they like to have their defenders step up the field when in possession. This allows more people to get on the back which helps with more fluid attack. 
+
 
 
 # Defense
-## Top Left
-```{r, echo=FALSE}
+
+## Column {width=400}
+
+&nbsp;&nbsp;&nbsp;&nbsp;Sewanee’s approach to defense includes a high press from their attackers in which they attempt to force a mistake from the other team and win the ball higher up the field. This style can be risky as many numbers are committed forward, but it can also make it hard for the other team to adjust. Further, a high press can tire out the opposition making it easier to create chances as the game goes on. 
+
+&nbsp;&nbsp;&nbsp;&nbsp;This style is apparent when looking at the pass completion for the other team in Sewanee’s attacking third because Sewanee allowed the fewest number of passes in their this part of the field, indicating that they were sending numbers forward and forcing Dalton State to make incomplete passes.
+
+```{r, echo=FALSE, fig.dim = c(5,3)}
 defense_data<-read_excel("C:/Users/norab/repos/sewanee_soccer/defense_data/defense_data.xlsx")
 defense_data<-defense_data%>%
   rename(timestamp=`46134.173657407409`,
@@ -207,8 +234,12 @@ ggplot(pass_defense_filter, aes(
   theme_light()
 ```
 
-## Top Right
-```{r, echo=FALSE}
+&nbsp;&nbsp;&nbsp;&nbsp;However, the flaws in the high press are demonstrated by the high numbers of passes completed in the middle and defensive thirds of Sewanee. Once Dalton State broke the high press and advanced the ball forward, Sewanee was exposed and they let Dalton State complete many passes. 
+
+&nbsp;&nbsp;&nbsp;&nbsp;In these cases, Sewanee was saved by individual performances rather than a collective team press. Sewanee had a high success rate of tackles which mitigated the danger when Dalton State broke down their high press. However, relying on individual performances is not a sustainable play style in the long run, so Sewanee needs to maintain the integrity of their defensive shape for future games. 
+
+## Column {width=400}
+```{r, echo=FALSE, fig.dim = c(5,3)}
 
 tackle_data<-defense_data%>%
   filter(action == 'tackle')
@@ -238,8 +269,9 @@ ggplot(tackle_count_data, aes(
 
 ```
 
-##Bottom Left
-```{r, echo=FALSE}
+&nbsp;&nbsp;&nbsp;&nbsp;Another reason to employ a high press can also be to force the opponent to play the ball in the air so that Sewanee can win the ball with headers. But, they had a low success rate in winning headers, especially in the defensive third which further illustrates the problems with relying on individual performances when the high press fails. 
+
+```{r, echo=FALSE, fig.dim = c(5,3)}
 
 header_data<-defense_data%>%
   filter(action == 'header',
@@ -271,21 +303,13 @@ ggplot(header_count_data, aes(
   )
 ```
 
-# Comparison
+&nbsp;&nbsp;&nbsp;&nbsp;A high press can be valuable, but it wasn’t sustainable for the Sewanee as it requires more physical effort and is risky. This means that they perhaps can choose to start with a high press in games and then change their defensive approach in different phases of the game. Or, they must work on maintaining defensive shape to make the high press more dependable. This is what spring games are for, though. If Sewanee works to improve these areas in the fall pre-season, the high press could prove to be a key factor in future success for the program. Additionally, as they bring in more talent, the team will have more game-ready players that can contribute minutes to the physically taxing high press.
 
-## Top Left
-```{r, echo=FALSE}
-foul_data<-defense_data%>%
-  filter(action == 'foul')
-foul_data_filter<-foul_data[c('action','third')]
-foul_data_filter<-foul_data_filter%>%
-  rename(Action = action,
-         'Third of the Field' = third)%>%
-  mutate(Card = c('none','yellow'))
-(table<-tt(foul_data_filter, caption="Fouls Committed by Sewanee"))
-```
+# Overview
 
-## Top Right
+## Column {width=400}
+
+&nbsp;&nbsp;&nbsp;&nbsp; The Sewanee men’s soccer team and their coach make intentional tactical choices to drive the success of the team. They definitely have approaches that work, especially on the attacking side; however, a bit of work needs to be done on the defensive side. It would be beneficial if they made their tactics more adaptable, as well. Rigid tactics don’t hold against the constantly changing phases of the game, but a confident team with thorough tactics will know how to adjust to these changes. This is what should be Sewanee‘s main focus during the fall preseason in order to reach their fullest potential. These stats are pulled from 10 minutes of one game. Even though it seems Sewanee was doing better, there was actually little difference between the two teams' pass percentages.
 ```{r, echo=FALSE}
 compare_table<-data.frame(
   'Total Pass Attempts' = c('58','34'),
@@ -296,4 +320,10 @@ rownames(compare_table)<-c('Sewanee','Dalton State')
 tt(compare_table, caption="Comparative Passing Data for the Teams")
 ```
 
-# Conclusion
+&nbsp;&nbsp;&nbsp;&nbsp; Still, these stats are the most accurate reflection of Sewanee’s game plan as the ebbs and flows of the game had yet to take place. And they can be used to improve Suwanee’s place style in the future.
+
+## Column {width=25}
+
+## Column {width=400}
+
+![](fit.jpg)
