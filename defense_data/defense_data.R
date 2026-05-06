@@ -15,24 +15,27 @@ log_line <- function(newdata, filename = 'app_data.csv'){
 ################################################################################
 
 ui <- fluidPage(
-  titlePanel(h4("Data entry app")),
+  h3("Soccer Defense Data Entry: How to Use"),
+  p("    This app allows you to create data frames for defensive statistics of a soccer game. It includes defensive actions like passes allowed, takcles,
+    headers, and fouls. Further, the success of these actions as well as the third of the field in which they occur can be noted. This can be a great
+    tool for analyzing a soccer team's defensive quality and what areas they can improve upon."),
+  titlePanel(h4("Data Entry for Defensive Statistics")),
   br(),
   fluidRow(
-    # Example input: manual text entry
     column(3, selectInput('select.1',
-                          label='Action',
+                          label='Select the Defensive Action that Occurred',
                           choices= c('fwrd_pass_allowed','bck_pass_allowed','tackle','header','foul'),
                           width = '95%')),
     
     # Example input: selecting pre-canned options
     column(3, selectInput('select.2',
-                          label='Status',
+                          label='Choose the Status/Success of the Action',
                           choices = c('complete','incomplete','won','not won'),
                           width='95%')),
     # Example input: toggling between options
     column(3, radioButtons('radio',
-                           label='Third of the Field',
-                           choices = c('attacking third','middle third','defensive third','N/A'),
+                           label='Select the Third of the Field in which the Action Occurred',
+                           choices = c('attacking third','middle third','defensive third'),
                            inline = TRUE,
                            width='95%'))),
   br(),

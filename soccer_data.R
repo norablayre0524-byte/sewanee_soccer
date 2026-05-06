@@ -15,6 +15,10 @@ log_line <- function(newdata, filename = 'app_data.csv'){
 ################################################################################
 
 ui <- fluidPage(
+  h3("Soccer Attack Data Entry: How to Use"),
+  p("    This app allows you to create data frames for attacking statistics of a soccer game. It includes defensive actions like foward passes, backwards passes,
+    shots, and driblles. Further, the success of these actions as well as the third of the field in which they occur can be noted. This can be a great
+    tool for analyzing a soccer team's attacking quality and what areas they can improve upon."),
   titlePanel(h4("Data entry app")),
   br(),
   fluidRow(

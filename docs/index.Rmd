@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
+    theme: sandstone
 
 ---
 # Introduction
@@ -28,21 +29,26 @@ library(flexdashboard)
 library(tinytable)
 library(qwraps2)
 library(knitr)
+library(ggthemes)
 
+# Reading in the Data
 data<-read_excel("C:/Users/norab/repos/sewanee_soccer/data/app_data.xlsx")
 data<-data%>%
   rename(Timestamp=`46131.461354166669`)
 
+# Renaming columns so they are more clear
 data<-data%>%
   rename(Type=fwrd_pass,
          Status=complete,
          third='attacking third')
 
+# Filtering the attacking data to only passes
 pass_third_data<-data%>%
   filter(Type %in% c("fwrd_pass","bck_pass"))%>%
   group_by(third, Type)%>%
   summarise(count=n(), .groups="drop")
 
+# Reordering the data entries so that they are more intuitive on plots
 pass_third_data$third<- factor(pass_third_data$third, levels=c('attacking third','middle third','defensive third'))
 pass_third_data$Type<- factor(pass_third_data$Type, levels=c('fwrd_pass','bck_pass'))
 ```
@@ -50,6 +56,8 @@ pass_third_data$Type<- factor(pass_third_data$Type, levels=c('fwrd_pass','bck_pa
 
 
 ```{r, echo=FALSE}
+# Putting the numbers for wins, losses, and ties in recent years for Sewanee Men's
+# soccer into a data frame
 record<- data.frame(
   Year = c('25-26','24-25','23-24','22-23'),
   Wins = c('12','6','6','13'),
@@ -57,6 +65,7 @@ record<- data.frame(
   Ties = c('4','4','6','0')
 )
 
+# turning that data frame into a plot
 tt(record, caption="Record in Recent Years")
 ```
   
@@ -78,27 +87,32 @@ tt(record, caption="Record in Recent Years")
 
 # Attack
 
-## Column {width=450}
+## Column {width=475}
 
 &nbsp;&nbsp;&nbsp;&nbsp; Passing and dribbling approach for each third of the field can be key in dissecting the tactics employed by Sewanee Men’s soccer against Dalton State. When looking at the passing stats, we see that the team is not afraid to possess the ball and has high numbers of both forwards and backwards passes in each third. There is a higher ratio of back passes in the defensive third as they want to minimize the risk of a counterattack so close to their own goal. 
 
 ```{r, echo=FALSE, fig.dim = c(5,3)}
-# put in different r chunk
+
+# Plotting the number of fowards and back passes by Sewanee to understand where they take
+# their passing risks on the field
 ggplot(pass_third_data, aes(
   x=third,
   y=count,
   fill=Type))+
-  geom_col(stat="identity",position="dodge")+
+  geom_col(stat="identity",position="dodge")+ # lets the bars be right next to each other rather than stacked
   labs(
-    title="The Passing Blueprint",
+    title="The Passing Blueprint", # Adding title, subtitle, caption, and axis lables
     subtitle="Number of Passes in Each Third",
     x="Third of the Field",
     y="Number of Passes",
-    fill="Type of Pass"
+    fill="Type of Pass",
+    caption="Note: fwrd means foward and bck means backwards"
   )+
   scale_fill_manual(
-    values=c("fwrd_pass"='red',"bck_pass"='black') #change, too harsh
-  ) #theme; gg_themes???
+    values=c("fwrd_pass"='blue',"bck_pass"='black') #color coding the types of passes for visual clarity
+  )+
+  theme_pander() # adding a clean theme and attempting to eliminate clunky features that
+# limit the clarity of the plot
 
 ```
 
@@ -108,17 +122,22 @@ ggplot(pass_third_data, aes(
 
 ![Sewanee's Formation](formation.webp)
 
-## Column {width=25}
+## Column {width=15}
 
-## Column {width=450}
+## Column {width=475}
 
 ```{r, echo=FALSE, fig.dim = c(5,3)}
+
+# filtering the data for the next plot
 pass_dribble_data<-data%>%
   filter(Type %in% c("fwrd_pass","bck_pass","dribble"))%>%
   mutate(Status = gsub('successful','complete', Status))
+
+# changing a typo in data entry
 pass_dribble_data<-pass_dribble_data%>%
   mutate(Status = gsub('uncomplete','incomplete',Status))
 
+# Making it so the data entries can be interpreted numerically
 pass_dribble_data<-pass_dribble_data%>%
   mutate(
     completion=case_when(
@@ -130,31 +149,35 @@ pass_dribble_data<-pass_dribble_data%>%
     )
   )
 
+# Grouping the pass and dribbling stats by third of the field
 pass_dribble_rate<-pass_dribble_data%>%
   group_by(third, action)%>%
   summarise(completion_rate = mean(completion), .groups="drop")
 
+# Changing the order of data enties for easier graph interpretation
 pass_dribble_rate<-pass_dribble_rate%>%
   mutate(third = factor(third, levels = c("attacking third","middle third","defensive third")))%>%
   mutate(action = factor(action, levels = c("pass","dribble")))
 
+# Plotting the pass success rate and dribble success rate in each thrid of the field
 ggplot(pass_dribble_rate, aes(
   x=third,
   y=completion_rate,
   fill=action
   ))+
-  geom_col(stat="identity", position=position_dodge(preserve="single"))+
+  geom_col(stat="identity", position=position_dodge(preserve="single"))+ # Putting bars side-by-side instead of stacked; preserve ="single" leaves space on chart where there is no data 
   labs(
-    title="Angle of Attack",
+    title="Angle of Attack", # Adding plot labels
     subtitle="Pass and Dribble Competion by Third",
-    caption="There were no dribbles attempted in the defensive third",
+    caption="There were no dribbles attempted in the defensive third", # Acknowledging why a part of the graph has no data
     x="Third of the Field",
     y="Completion Rate",
     color="Action"
   )+
   scale_fill_manual(
-    values= c("pass"='yellow',"dribble"= 'turquoise')
-  )
+    values= c("pass"='purple',"dribble"= 'gold') # Adding school themed colors
+  )+
+  theme_pander() # Putting a consistent theme
 ```
 
 
@@ -162,27 +185,33 @@ ggplot(pass_dribble_rate, aes(
 
 
 ```{r, echo=FALSE, fig.dim = c(5,3)}
+
+# Filtering the data to foward passes only
 ground_air_data<-pass_dribble_data%>%
   filter(Type == 'fwrd_pass')%>%
-  group_by(third, ground)%>%
-  summarise(count = n(), .groups="drop")%>%
-  mutate(third = factor(third, levels = c('attacking third','middle third', 'defensive third')),
-         ground = factor(ground, levels = c('ground','air')))
+  group_by(third, ground)%>% # Grouping data together
+  summarise(count = n(), .groups="drop")%>% # Allowing data entries to be shown numerically
+  mutate(third = factor(third, levels = c('attacking third','middle third', 'defensive third')), # logically reordering data columns
+         ground = factor(ground, levels = c('ground','air'))) 
 
+# Making a plot showing Sewanee's passing on the ground and the air
 ggplot(ground_air_data, aes(
   x=third,
   y=count,
   fill=ground
 ))+
-  geom_col(stat="identity", position=position_dodge(preserve="single"))+
+  geom_col(stat="identity", position=position_dodge(preserve="single"))+ # Ensuring proper bar formatting
   labs(
-    title="Altitude of Attack",
+    title="Altitude of Attack",  # Adding plot labels
     subtitle="Foward Pass Attempts on the Ground or in the Air by Third",
     caption="No Pass Attempts in the Air in the Defensive Third",
     x="Third of the Field",
     y="Number of Pass Attempts",
     fill="Type of Pass"
-  )
+  )+
+  scale_fill_manual(values=
+                      c("ground"='turquoise',"air"='magenta'))+ # Adding color
+  theme_pander() # Keeping the theme consistent
 
 ```
 
@@ -201,37 +230,49 @@ ggplot(ground_air_data, aes(
 &nbsp;&nbsp;&nbsp;&nbsp;This style is apparent when looking at the pass completion for the other team in Sewanee’s attacking third because Sewanee allowed the fewest number of passes in their this part of the field, indicating that they were sending numbers forward and forcing Dalton State to make incomplete passes.
 
 ```{r, echo=FALSE, fig.dim = c(5,3)}
+
+# Reading in the defense data
 defense_data<-read_excel("C:/Users/norab/repos/sewanee_soccer/defense_data/defense_data.xlsx")
+
+# Renaming columns for clarity
 defense_data<-defense_data%>%
   rename(timestamp=`46134.173657407409`,
          action=pass_allowed,
          success=complete,
          third='attacking third')
+
+# Grouping data together and allowing it to be shown numerically
 pass_defense<-defense_data%>%
   group_by(action,success, third)%>%
   summarise(count = n(), .groups="drop")
+
+# Filtering data 
 pass_defense_filter<-pass_defense%>%
   filter(action == 'pass_allowed',
          success %in% c('complete','incomplete'))
+
+# Reordering the third of the field column
 pass_defense_filter$third<- factor(pass_defense_filter$third, levels = c('attacking third','middle third', 'defensive third'))
 
+# Making the plot showing the number of complete and incomplete passes allowed by Sewanee
 ggplot(pass_defense_filter, aes(
   x=third,
   y=count,
   fill=success
 ))+
-  geom_col(stat="identity", position="dodge")+
+  geom_col(stat="identity", position="dodge")+ # Ensuring proper bar formatting
   scale_fill_manual(
-    values = c(complete='red',incomplete='green')
+    values = c(complete='red',incomplete='green') # Giving the graph intuitive color
   )+
   labs(
-    title="Tactics Against Passing",
+    title="Tactics Against Passing", # Adding plot labels
     subtitle="Number of Passes for the Opposition",
     x="Third of the Field",
     y="Number of Passes",
-    fill="Key"
+    fill="Key",
+    caption="High completed pass numbers by opposition indicates defensive flaws"
   )+
-  theme_light()
+  theme_pander() # Keeping the theme consistent
 ```
 
 &nbsp;&nbsp;&nbsp;&nbsp;However, the flaws in the high press are demonstrated by the high numbers of passes completed in the middle and defensive thirds of Sewanee. Once Dalton State broke the high press and advanced the ball forward, Sewanee was exposed and they let Dalton State complete many passes. 
@@ -241,31 +282,36 @@ ggplot(pass_defense_filter, aes(
 ## Column {width=400}
 ```{r, echo=FALSE, fig.dim = c(5,3)}
 
+# Filtering the data to tackles
 tackle_data<-defense_data%>%
   filter(action == 'tackle')
+
+# Allowing the data to be shown numerically and reordering columns
 tackle_count_data<-tackle_data%>%
   group_by(success, third)%>%
   summarise(count = n(), .groups="drop")%>%
   mutate(third = factor(third, levels = c('attacking third','middle third','defensive third')),
          success = factor(success, levels = c('won','not won')))
 
+# Making the plot for tackles won by Sewanee
 ggplot(tackle_count_data, aes(
   x=third,
   y=count,
   fill=success
 ))+
-  geom_col(stat="identity", position=position_dodge(preserve="single"))+
+  geom_col(stat="identity", position=position_dodge(preserve="single"))+ # Bar formatting again
   scale_fill_manual(
-    values = c(won='green','not won'='red')
+    values = c(won='green','not won'='red') # Adding intuitive color
   )+
   labs(
-    title="Defensive Success on the Ground",
+    title="Defensive Success on the Ground", # Adding plot laels
     subtitle="Number of Tackles Won by Third",
     x="Third of the Field",
     y="Number of Tackles",
     fill="Key",
     caption="No Tackles Not Won in the Attacking and Defensive Thirds"
-  )
+  )+
+  theme_pander() # Keeping the theme consistent
 
 ```
 
@@ -273,58 +319,55 @@ ggplot(tackle_count_data, aes(
 
 ```{r, echo=FALSE, fig.dim = c(5,3)}
 
+# Filtering the data for headers
 header_data<-defense_data%>%
   filter(action == 'header',
          third != 'attacking third')
+
+# Reordering data entries
 header_data_filter<-header_data%>%
   mutate(third = factor(third, levels = c('middle third','defensive third')),
          success = factor(success, levels = c('won','not won')))
+
+# Allowing the data to be interpreted numerically
 header_count_data<-header_data_filter%>%
   group_by(success, third)%>%
   summarise(count = n(), .groups="drop")
 
+# Making the plot for headers won by Sewanee
 ggplot(header_count_data, aes(
   x=third,
   y=count,
   fill=success
 ))+
-  geom_col(stat="identity",position="dodge")+
+  geom_col(stat="identity",position="dodge")+ # Bar formatting again
   scale_fill_manual(
-    values = c(won='green','not won'='red')
+    values = c(won='green','not won'='red') # Adding intuitive color
   )+
-  scale_y_continuous(limits = c(0,4))+
+  scale_y_continuous(limits = c(0,4))+ # Changing the scale of the y-axis so the data significance is more clear
   labs(
-    title="Defensive Success in the Air",
+    title="Defensive Success in the Air", # Adding plot labels
     subtitle="Number of Headers Won by Third",
     x="Third of the Field",
     y="Number of Headers",
     fill="Key",
     caption="No Headers in the Attacking Third"
-  )
+  )+
+  theme_pander() # Keeping the theme consistent
 ```
 
 &nbsp;&nbsp;&nbsp;&nbsp;A high press can be valuable, but it wasn’t sustainable for the Sewanee as it requires more physical effort and is risky. This means that they perhaps can choose to start with a high press in games and then change their defensive approach in different phases of the game. Or, they must work on maintaining defensive shape to make the high press more dependable. This is what spring games are for, though. If Sewanee works to improve these areas in the fall pre-season, the high press could prove to be a key factor in future success for the program. Additionally, as they bring in more talent, the team will have more game-ready players that can contribute minutes to the physically taxing high press.
 
 # Overview
 
-## Column {width=500}
+## Looking Towards the Future {width=500}
 
 &nbsp;&nbsp;&nbsp;&nbsp; The Sewanee men’s soccer team and their coach make intentional tactical choices to drive the success of the team. They definitely have approaches that work, especially on the attacking side; however, a bit of work needs to be done on the defensive side. It would be beneficial if they made their tactics more adaptable, as well. Rigid tactics don’t hold against the constantly changing phases of the game, but a confident team with thorough tactics will know how to adjust to these changes. This is what should be Sewanee‘s main focus during the fall preseason in order to reach their fullest potential. These stats are pulled from 10 minutes of one game. Even though it seems Sewanee was doing better, there was actually little difference between the two teams' pass percentages.
 
-```{r, include=FALSE}
-compare_table<-data.frame(
-  'Total Pass Attempts' = c('58','34'),
-  'Total Pass Completed' = c('44','26'),
-  'Completion Percentage' = c('75.86', '76.47')
-)
-rownames(compare_table)<-c('Sewanee','Dalton State')
-tt(compare_table, caption="Comparative Passing Data for the Teams")
-```
-
 &nbsp;&nbsp;&nbsp;&nbsp; Still, these stats are the most accurate reflection of Sewanee’s game plan as the ebbs and flows of the game had yet to take place. And they can be used to improve Suwanee’s place style in the future.
 
-## Column {width=25}
+## Column {width=5}
 
-## Column {width=400}
+## Column {width=200}
 
 ![](fit.jpg)
