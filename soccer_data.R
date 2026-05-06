@@ -24,24 +24,24 @@ ui <- fluidPage(
   fluidRow(
     # Example input: manual text entry
     column(3, selectInput('select.1',
-                        label='Type',
+                        label='Select the Type of Action',
                         choices= c('fwrd_pass','bck_pass','shot','dribble'),
                         width = '95%')),
 
     # Example input: selecting pre-canned options
     column(3, selectInput('select.2',
-                          label='Status',
+                          label='Choose the Success or Status of that Action',
                           choices = c('complete','incomplete','on target','not on target','successful','unsuccessful'),
                           width='95%')),
 
     column(3, selectInput('select.3)',
-                          label= 'Height',
+                          label= 'Select the Height of that Action',
                           choices= c('air','ground'),
                           width='95%')),
 
     # Example input: toggling between options
     column(3, radioButtons('radio',
-                           label='Third of the Field',
+                           label='Select the Third of the Field in Which that Action Occurred',
                            choices = c('attacking third','middle third','defensive third'),
                            inline = TRUE,
                            width='95%'))),
